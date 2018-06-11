@@ -52,12 +52,11 @@ $(function () {
         });
 
         describe('#menu-icon-link when clicked', function () {
-            it('should display menu and should hide it when clicked again', function (done) {
+            it('should display menu and should hide it when clicked again', function () {
                 menuicon.click();
                 expect(body).not.toHaveClass('menu-hidden');
                 menuicon.click();
                 expect(body).toHaveClass('menu-hidden');
-                done();
             });
         });
     });
@@ -72,7 +71,7 @@ $(function () {
         });
 
         it('should have at least a single #entry element within the #feed container', function (done) {
-            expect($('.feed .entry')).toExist();
+            expect($('.feed .entry').length).toBeGreaterThan(0);
             done();
         });
     });
@@ -86,28 +85,27 @@ $(function () {
         var oldLink, newLink;
         // before make sure to load first feed batch
         beforeEach(function (done) {
-            // loads feed and set old link to first .entry-link
+            // load first feed and set old link to first .entry-link
             loadFeed(0, function () {
                 oldLink = $('.feed .entry-link').first().attr('href');
-                done();
+                callback();
             });
+            // callback loads second feed after first one is done
+            // set new link to first .entry-link
+            function callback() {
+                loadFeed(1, function () {
+                    newLink = $('.feed .entry-link').first().attr('href');
+                    done();
+                });
+            }
         });
-        // after make sure to load second feed batch
+        // after Each done reload to initial feed
         afterEach(function (done) {
-            // loads feed and set new link to first .entry-link
-            loadFeed(1, function () {
-                newLink = $('.feed .entry-link').first().attr('href');
-                done();
-            });
-        });
-        // after all done reload to initial feed
-        afterAll(function (done) {
             loadFeed(0, done);
         });
 
-        it('should load a new feed', function (done) {
+        it('should load a new feed', function () {
             expect(newLink).not.toBe(oldLink);
-            done();
         });
     });
 }());
